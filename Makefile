@@ -20,7 +20,7 @@ SSH       := sshpass -p $(VM_PASS) ssh $(SSH_OPTS) $(VM_USER)@$(VM_IP)
 RSYNC_SSH := sshpass -p $(VM_PASS) ssh $(SSH_OPTS)
 
 .DEFAULT_GOAL := help
-.PHONY: help tools machine ssh status destroy infra env up down logs sync
+.PHONY: help tools machine ssh status destroy infra env up down logs sync network
 
 help: ## Show this help
 	@echo "SambaPME - available targets:"
@@ -67,3 +67,7 @@ status: ## Show the VM status
 
 destroy: ## Destroy the VM
 	$(VAGRANT) destroy -f
+
+network: ## Just wakes up the network
+	virsh net-start vagrant-libvirt
+	virsh net-start samba-net

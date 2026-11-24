@@ -1,16 +1,12 @@
-# SambaPME
+# Samba-Lab
 
 <div align='center'>
-<a href="./README.fr.md">Lire la version française</a>
+<a href="./README.fr.md">Lire la version française ici </a>
 </div>
 
-**A web portal for a Samba file server.** Employees sign in and browse the shared
-folders of their department; administrators get a dashboard to manage Samba accounts,
-watch fail2ban, run backups and audit activity, all from the browser.
 
 ---
-
-## Contents
+Contents
 
 - [Context](#context)
 - [Architecture](#architecture)
@@ -30,7 +26,7 @@ watch fail2ban, run backups and audit activity, all from the browser.
 
 ## Context
 
-SambaPME simulates the internal file-sharing portal of a small company (a *PME*). It is part of a bigger project begun earlier this year.
+This lab simulates the internal file-sharing portal of a small company.
 A Linux server runs **Samba 4** (protocol SMB2/3 with **encryption required**) and exposes one
 share per department (`direction`, `comptabilite`, `rh`, `technique`) plus a shared one
 (`commun`). The portal lets employees **list, upload, download, preview and delete**
@@ -73,7 +69,7 @@ flowchart LR
     smbd -. "log lines" .-> logs
     cron -. "snapshots" .-> smbd
 ```
-
+More information in [architecture.md](./infra/README.md)
 **Communication, in three flows:**
 
 | Flow | Path | What happens |

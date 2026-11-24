@@ -1,7 +1,7 @@
 """
 app.py 
-logique centrale du backend
-contient toute la logique partagée du frontend
+central logique  of the backend
+contains all the shared logic of the frontend
 """
 
 import os
@@ -20,7 +20,6 @@ load_dotenv()
 
 from . import samba_client as smb
 from . import admin_logic  as adm
-#import ueba_hook
 
 app = Flask(__name__, template_folder="../frontend/templates", static_folder="../frontend/static")
 app.secret_key                  = os.getenv("FLASK_SECRET_KEY", "dev_key_change_me")
@@ -102,7 +101,7 @@ def login():
 
         if not username or not password:
             error = "Please fill in all fields."
-        elif username == "admin":
+        elif username.strip() == "admin":
             result = adm.test_ssh_auth()
             if result.get("ok"):
                 session.update({"username": "admin", "password": password,

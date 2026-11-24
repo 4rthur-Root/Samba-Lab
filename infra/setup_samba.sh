@@ -53,6 +53,13 @@ ssh_run() {
         "$SSH_USER@$SERVER_IP" "$@"
 }
 
+# Function to use the configs files instead 
+push_conf() {  # push_conf <local> <remote>
+  sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no "$1" "$SSH_USER@$SERVER_IP:/tmp/_cfg"
+  ssh_run "echo '$SSH_PASSWORD' | sudo -S install -o root -g root -m 644 /tmp/_cfg $2"
+}
+
+
 # Test SSH connection
 log_info "Testing SSH connection..."
 ssh_run "echo 'SSH OK'" >/dev/null 2>&1 || log_error "Cannot connect to $SERVER_IP -- is the VM running?"
@@ -85,8 +92,8 @@ log_ok "Groups created: direction, comptabilite, rh, technique"
 log_info "Creating Samba users..."
 
 declare -A USER_GROUPS=(
-    ["direction1"]="direction"
-    ["direction2"]="direction"
+    ["dir1"]="direction"
+    ["dir2"]="direction"
     ["compta1"]="comptabilite"
     ["compta2"]="comptabilite"
     ["rh1"]="rh"
@@ -137,71 +144,8 @@ log_ok "Directories created with permissions"
 # 6. smb.conf configuration
 log_info "Writing smb.conf..."
 
-ssh_run "cat << 'SMBCONF' | sudo -S tee /etc/samba/smb.conf >/dev/null
-[global]
-   workgroup = WORKGROUP
-   server string = SambaPME Server
-   netbios name = SAMBAPME
+push_conf "$(dirname "$0")/../configs/smb.conf" /etc/samba/smb.conf
 
-   # Security
-   security = user
-   map to guest = never
-   restrict anonymous = 2
-
-   # Protocols
-   min protocol = SMB2
-   max protocol = SMB3
-
-   # SMB3 encryption required
-   smb encrypt = required
-
-   # Logging
-   log file = /var/log/samba/log.%m
-   max log size = 1000
-   log level = 2
-
-   # Performance
-   socket options = TCP_NODELAY IPTOS_LOWDELAY SO_RCVBUF=131072 SO_SNDBUF=131072
-
-[direction]
-   path = /srv/samba/direction
-   valid users = @direction
-   read only = no
-   create mask = 0660
-   directory mask = 2770
-   force group = direction
-
-[comptabilite]
-   path = /srv/samba/comptabilite
-   valid users = @comptabilite
-   read only = no
-   create mask = 0660
-   directory mask = 2770
-   force group = comptabilite
-
-[rh]
-   path = /srv/samba/rh
-   valid users = @rh
-   read only = no
-   create mask = 0660
-   directory mask = 2770
-   force group = rh
-
-[technique]
-   path = /srv/samba/technique
-   valid users = @technique
-   read only = no
-   create mask = 0660
-   directory mask = 2770
-   force group = technique
-
-[commun]
-   path = /srv/samba/commun
-   valid users = @direction @comptabilite @rh @technique
-   read only = no
-   create mask = 0664
-   directory mask = 2777
-SMBCONF"
 log_ok "smb.conf written"
 
 # 7. Fail2ban configuration
